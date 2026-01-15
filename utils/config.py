@@ -23,49 +23,49 @@ class Config:
     LR_PATCH_SIZE = 64   # Low-resolution patch size (4x downscale)
     SCALE_FACTOR = 4      # Upscaling factor
     
-    # Fast training mode - use subset of dataset
-    USE_DATASET_SUBSET = True      # Use only subset for faster training
-    DATASET_SUBSET_SIZE = 2000     # Number of patches to use
+    # Dataset configuration - FULL POTENTIAL MODE
+    USE_DATASET_SUBSET = False      # Use FULL dataset for maximum quality (set True + subset size for fast training)
+    DATASET_SUBSET_SIZE = None      # Not used when USE_DATASET_SUBSET = False
     
     # Degradation pipeline parameters
     GAUSSIAN_BLUR_SIGMA = 1.2  # Standard deviation for Gaussian blur
     GAUSSIAN_NOISE_STD = 0.01  # Standard deviation for additive noise
     
-    # Model architecture
-    GENERATOR_RESIDUAL_BLOCKS = 16  # Number of residual blocks in generator
+    # Model architecture - Production quality
+    GENERATOR_RESIDUAL_BLOCKS = 16  # Number of residual blocks in generator (16 is optimal)
     GENERATOR_FEATURES = 64         # Base number of feature maps
     DISCRIMINATOR_FEATURES = 64     # Starting feature maps in discriminator
     
-    # Training hyperparameters
-    BATCH_SIZE = 8                  # Reduced to avoid memory issues
-    NUM_EPOCHS_PRETRAIN = 3         # Pre-training epochs (~20-30 minutes)
-    NUM_EPOCHS_ADVERSARIAL = 3      # Adversarial training epochs (~30-40 minutes, total ~1 hour)
+    # Training hyperparameters - BALANCED CONFIGURATION (15 total epochs)
+    BATCH_SIZE = 16                 # Increased for better gradient estimates (GPU can handle)
+    NUM_EPOCHS_PRETRAIN = 5         # Pre-training epochs (5 for quick stabilization)
+    NUM_EPOCHS_ADVERSARIAL = 10     # Adversarial training epochs (10 for good quality)
     
-    LEARNING_RATE_G = 1e-4          # Generator learning rate
-    LEARNING_RATE_D = 1e-4          # Discriminator learning rate
+    LEARNING_RATE_G = 1e-4          # Generator learning rate (optimal)
+    LEARNING_RATE_D = 1e-4          # Discriminator learning rate (optimal)
     BETA1 = 0.9                     # Adam optimizer beta1
     BETA2 = 0.999                   # Adam optimizer beta2
     
-    # Loss function weights
+    # Loss function weights - Standard SRGAN configuration
     LOSS_VGG_WEIGHT = 1.0           # VGG perceptual loss weight
-    LOSS_GAN_WEIGHT = 1e-3          # Adversarial loss weight
+    LOSS_GAN_WEIGHT = 1e-3          # Adversarial loss weight (standard)
     LOSS_MSE_WEIGHT = 1.0           # MSE loss weight
     
     # Training schedule
     D_UPDATE_FREQ = 1               # Discriminator update frequency
     G_UPDATE_FREQ = 1               # Generator update frequency
     
-    # Checkpointing
-    SAVE_CHECKPOINT_FREQ = 10       # Save checkpoint every N epochs
+    # Checkpointing - More frequent for long training
+    SAVE_CHECKPOINT_FREQ = 5        # Save checkpoint every N epochs (more frequent for long runs)
     SAVE_SAMPLE_FREQ = 5            # Save sample images every N epochs
     
     # Evaluation
     EVAL_FREQ = 10                  # Evaluate every N epochs
     METRICS = ['PSNR', 'SSIM']      # Metrics to compute
     
-    # Device configuration
+    # Device configuration - Optimized for GPU
     DEVICE = 'cuda' if os.environ.get('CUDA_VISIBLE_DEVICES') else 'cpu'
-    NUM_WORKERS = 4                 # DataLoader workers
+    NUM_WORKERS = 8                 # DataLoader workers (increased for GPU)
     PIN_MEMORY = True               # Pin memory for faster GPU transfer
     
     # VGG loss configuration
