@@ -64,3 +64,11 @@ Thumbs.db
 
 # Project specific
 inference/output/
+api/uploads/
+api/outputs/
+test_images/
+node_modules/
+frontend-next/.next/
+frontend-next/node_modules/
+*.bat
+*.sh
