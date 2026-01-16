@@ -32,8 +32,23 @@ def train_generator_pretrain():
     logger = setup_logger("SRGAN_Pretrain")
     Config.print_config()
     
-    device = torch.device(Config.DEVICE)
-    logger.info(f"Using device: {device}")
+    # Force CUDA device explicitly - AGGRESSIVE FIX
+    import os
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # Force first GPU
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+    
+    if torch.cuda.is_available():
+        torch.cuda.set_device(0)  # Explicitly set to first CUDA device
+        device = torch.device('cuda:0')
+        # Force GPU allocation to verify it's working
+        test_tensor = torch.zeros(1).cuda()
+        logger.info(f"Using device: {device} ({torch.cuda.get_device_name(0)})")
+        logger.info(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+        del test_tensor
+        torch.cuda.empty_cache()
+    else:
+        device = torch.device('cpu')
+        logger.warning("CUDA not available, falling back to CPU")
     
     # Initialize degradation pipeline
     degradation = DegradationPipeline(

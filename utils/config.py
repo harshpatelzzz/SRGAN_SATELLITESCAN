@@ -23,9 +23,9 @@ class Config:
     LR_PATCH_SIZE = 64   # Low-resolution patch size (4x downscale)
     SCALE_FACTOR = 4      # Upscaling factor
     
-    # Dataset configuration - FULL POTENTIAL MODE
-    USE_DATASET_SUBSET = False      # Use FULL dataset for maximum quality (set True + subset size for fast training)
-    DATASET_SUBSET_SIZE = None      # Not used when USE_DATASET_SUBSET = False
+    # Dataset configuration - FAST TRAINING MODE (using subset)
+    USE_DATASET_SUBSET = True       # Use subset for faster training (5-10x faster)
+    DATASET_SUBSET_SIZE = 5000      # Use 5,000 patches (vs 50,000+ full dataset) - 10x faster!
     
     # Degradation pipeline parameters
     GAUSSIAN_BLUR_SIGMA = 1.2  # Standard deviation for Gaussian blur
@@ -36,9 +36,9 @@ class Config:
     GENERATOR_FEATURES = 64         # Base number of feature maps
     DISCRIMINATOR_FEATURES = 64     # Starting feature maps in discriminator
     
-    # Training hyperparameters - BALANCED CONFIGURATION (15 total epochs)
+    # Training hyperparameters - IMPROVED QUALITY (15 total epochs)
     BATCH_SIZE = 16                 # Increased for better gradient estimates (GPU can handle)
-    NUM_EPOCHS_PRETRAIN = 5         # Pre-training epochs (5 for quick stabilization)
+    NUM_EPOCHS_PRETRAIN = 5         # Pre-training epochs (5 for better quality)
     NUM_EPOCHS_ADVERSARIAL = 10     # Adversarial training epochs (10 for good quality)
     
     LEARNING_RATE_G = 1e-4          # Generator learning rate (optimal)
@@ -64,7 +64,17 @@ class Config:
     METRICS = ['PSNR', 'SSIM']      # Metrics to compute
     
     # Device configuration - Optimized for GPU
-    DEVICE = 'cuda' if os.environ.get('CUDA_VISIBLE_DEVICES') else 'cpu'
+    # Force CUDA device (RTX 4060) - explicitly use cuda:0
+    try:
+        import torch
+        if torch.cuda.is_available():
+            DEVICE = 'cuda:0'  # Explicitly use first CUDA device (RTX 4060)
+            # Verify GPU is accessible
+            torch.cuda.set_device(0)
+        else:
+            DEVICE = 'cpu'
+    except ImportError:
+        DEVICE = 'cpu'  # Fallback if torch not installed
     NUM_WORKERS = 8                 # DataLoader workers (increased for GPU)
     PIN_MEMORY = True               # Pin memory for faster GPU transfer
     
